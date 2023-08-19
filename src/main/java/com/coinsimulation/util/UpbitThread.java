@@ -1,7 +1,10 @@
 package com.coinsimulation.util;
 
+import com.coinsimulation.service.UpbitService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import org.springframework.web.reactive.socket.client.ReactorNettyWebSocketClient;
@@ -13,11 +16,14 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 @Slf4j
-public class UpbitThread extends Thread {
+@RequiredArgsConstructor
+@Component
+public class UpbitThread {
+    private final UpbitService upbitService;
+
     private final String ACCESS_KEY = "xgzZBPrL0mdUKV88JElrU1tViKVdxbivQw8mPuaZ";
     private final String SECRET_KEY = "4IpEyMxOIBDD0swtnvlIPAMtEESKFmyNeaWb045K";
 
-    @Override
     public void run() {
         startWithCreation();
     }
@@ -39,7 +45,7 @@ public class UpbitThread extends Thread {
                     uri,
                     header,
                     this::handleWebSocketSession
-            ).block(Duration.ofMillis(200L));
+            ).block(Duration.ofMillis(1000L));
         }
     }
 
@@ -62,7 +68,10 @@ public class UpbitThread extends Thread {
                 ]""";
         return session.send(Mono.just(session.textMessage(body)))
                 .thenMany(session.receive().map(WebSocketMessage::getPayload))
-                .doOnNext(message -> System.out.println("Received message: " + message.toString(StandardCharsets.UTF_8)))
+                .doOnNext(message -> {
+                    String result = message.toString(StandardCharsets.UTF_8);
+                    upbitService.saveTicket(result);
+                })
                 .then();
     }
 

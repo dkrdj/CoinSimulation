@@ -1,11 +1,11 @@
 spring:
-  datasource:
-    username: dkrdj
-    password: dltkdgus12
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/COIN-SIMULATION
+  data:
+    mongodb:
+      database: coin
 logging:
   level:
     org:
       springframework:
         r2dbc: DEBUG
+server:
+  port: 8081

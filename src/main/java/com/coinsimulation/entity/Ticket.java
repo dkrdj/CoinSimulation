@@ -2,6 +2,7 @@ package com.coinsimulation.entity;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
@@ -10,9 +11,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @ToString
+@Document
 public class Ticket {
     @Id
-    private Long id;
+    private String id;
     private String type;
     private String code;
     private Double opening_price;
@@ -48,4 +50,9 @@ public class Ticket {
     private String market_warning;
     private Long timestamp;
     private String stream_type;
+
+    public Ticket setId(String id) {
+        this.id = id;
+        return this;
+    }
 }

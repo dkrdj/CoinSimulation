@@ -6,8 +6,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketMessage;
@@ -17,6 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.time.Duration;
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -43,23 +42,23 @@ public class WebSocketClientInitializer {
             ]""";
     private URI uri = URI.create("wss://api.upbit.com/websocket/v1");
 
-    @EventListener(ContextRefreshedEvent.class)
+    //    @EventListener(ContextRefreshedEvent.class)
     public void upbitListener() {
         System.out.println("contextRefreshed");
 
-        Flux.interval(Duration.ofMillis(200L))
-                .flatMap(tick -> client.execute(uri, connectAndReceive(tick + "id")))
+        Flux.interval(Duration.ofMillis(1000L))
+                .flatMap(tick -> client.execute(uri, connectAndReceive()))
                 .subscribe();
     }
 
-    public WebSocketHandler connectAndReceive(String id) {
+    public WebSocketHandler connectAndReceive() {
         return session -> session.send(Mono.just(session.textMessage(body)))
                 .thenMany(session.receive()
                         .map(WebSocketMessage::getPayloadAsText)
                         .<Ticket>handle((payload, sink) -> {
                             try {
                                 Ticket ticket = om.readValue(payload, Ticket.class);
-                                sink.next(ticket.setId(id));
+                                sink.next(ticket.setId(LocalDateTime.now().toString()));
                             } catch (JsonProcessingException e) {
                                 sink.error(new RuntimeException(e));
                             }

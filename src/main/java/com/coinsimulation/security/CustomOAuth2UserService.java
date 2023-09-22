@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,7 @@ public class CustomOAuth2UserService extends DefaultReactiveOAuth2UserService {
     }
 
     private Mono<OAuth2User> processOAuth2User(Mono<OAuth2User> oAuth2User) {
-        Mono<Map<String, Object>> attributes = oAuth2User.map(oauthUser -> oauthUser.getAttributes());
+        Mono<Map<String, Object>> attributes = oAuth2User.map(OAuth2AuthenticatedPrincipal::getAttributes);
 
         Mono<User> userMono = attributes.map(KakaoUserInfo::new)
                 .flatMap(kakaoUser -> userRepository.findByProviderId(kakaoUser.getProviderId()))

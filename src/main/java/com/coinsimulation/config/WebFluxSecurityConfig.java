@@ -28,11 +28,11 @@ public class WebFluxSecurityConfig {
                                                             CorsConfigurationSource corsConfig) {
         return http
                 .cors(cors -> cors.configurationSource(corsConfig))
-                .csrf(csrf -> csrf.disable())
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         .anyExchange().authenticated()
                 )
-                .formLogin(formLogin -> formLogin.disable())
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .oauth2Login(oAuth2LoginSpec ->
                         oAuth2LoginSpec.authenticationSuccessHandler(
                                         (webFilterExchange, authentication) -> {

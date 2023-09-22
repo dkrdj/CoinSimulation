@@ -40,7 +40,7 @@ public class WebSocketClientInitializer {
                 "format": "DEFAULT"
               }
             ]""";
-    private URI uri = URI.create("wss://api.upbit.com/websocket/v1");
+    private final URI uri = URI.create("wss://api.upbit.com/websocket/v1");
 
     //    @EventListener(ContextRefreshedEvent.class)
     public void upbitListener() {

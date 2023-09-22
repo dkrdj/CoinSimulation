@@ -34,7 +34,7 @@ public class AuthorizationRequestCustomRepository implements ServerAuthorization
     @Override
     public Mono<OAuth2AuthorizationRequest> removeAuthorizationRequest(ServerWebExchange exchange) {
         return this.clientRegistrationRepository.findByRegistrationId(KAKAO)
-                .map((clientRegistration) -> authorizationRequest(clientRegistration));
+                .map(this::authorizationRequest);
     }
 
     private OAuth2AuthorizationRequest authorizationRequest(ClientRegistration clientRegistration) {

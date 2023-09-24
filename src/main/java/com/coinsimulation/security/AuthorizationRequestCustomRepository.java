@@ -37,6 +37,7 @@ public class AuthorizationRequestCustomRepository implements ServerAuthorization
                 .map(this::authorizationRequest);
     }
 
+
     private OAuth2AuthorizationRequest authorizationRequest(ClientRegistration clientRegistration) {
         return getBuilder(clientRegistration).clientId(clientRegistration.getClientId())
                 .authorizationUri(tokenUri)

@@ -13,7 +13,7 @@ public class TestController {
     @GetMapping("1")
     public Flux<String> test() {
         return Flux.interval(Duration.ofMillis(300L))
-                .map(tick -> "test" + tick)
+                .map(tick -> "test" + tick + "\n")
                 .take(10);
     }
 }

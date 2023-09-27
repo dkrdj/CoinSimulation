@@ -31,4 +31,4 @@ logging:
       springframework:
         r2dbc: DEBUG
 server:
-  port: 8080
+  port: 80

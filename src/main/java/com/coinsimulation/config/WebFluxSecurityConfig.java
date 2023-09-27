@@ -30,7 +30,7 @@ public class WebFluxSecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfig))
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        .anyExchange().authenticated()
+                        .anyExchange().permitAll()
                 )
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .oauth2Login(oAuth2LoginSpec ->

@@ -2,6 +2,7 @@ spring:
   r2dbc:
     url: r2dbc:pool:postgresql://localhost:5432/postgres
     username: dkrdj
+    password: dkrdj
   data:
     mongodb:
       database: coin

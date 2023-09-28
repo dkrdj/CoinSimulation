@@ -33,7 +33,7 @@ public class WebFluxSecurityConfig {
                         .pathMatchers("/test/**").permitAll()
                         .anyExchange().authenticated()
                 )
-                //흠
+                //ㅇㄹㅇㄹ
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .oauth2Login(oAuth2LoginSpec ->
                         oAuth2LoginSpec.authenticationSuccessHandler(

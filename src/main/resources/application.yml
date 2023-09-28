@@ -13,7 +13,7 @@ spring:
           kakao:
             client-id: e8b2fe68b0bf22ce159adcb136bbc962
             client-secret: Zv83U7X4vlg6pqM3Z1aEGRDszmXK25R2
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            redirect-uri: http://coin-simulation.com/login/oauth2/code/kakao
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
             client-name: Kakao

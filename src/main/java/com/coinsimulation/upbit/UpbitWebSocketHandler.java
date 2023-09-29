@@ -1,7 +1,9 @@
 package com.coinsimulation.upbit;
 
-import com.coinsimulation.entity.Ticket;
-import com.coinsimulation.repository.TicketRepository;
+import com.coinsimulation.entity.Bitcoin;
+import com.coinsimulation.entity.TicketDto;
+import com.coinsimulation.repository.BitcoinRepository;
+import com.coinsimulation.service.PublishingService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
@@ -12,7 +14,6 @@ import org.springframework.web.reactive.socket.WebSocketMessage;
 import org.springframework.web.reactive.socket.WebSocketSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -25,13 +26,13 @@ import java.util.List;
 public class UpbitWebSocketHandler implements WebSocketHandler {
     private final String body;
     private final ObjectMapper om;
-    private final TicketRepository ticketRepository;
+    private final BitcoinRepository bitcoinRepository;
     private final String ERROR_DUPLICATION = "ID is duplicated";
     private final String ERROR_429 = "429 : too many request";
 
-    public UpbitWebSocketHandler(ObjectMapper om, TicketRepository ticketRepository) {
+    public UpbitWebSocketHandler(ObjectMapper om, BitcoinRepository bitcoinRepository) {
         this.om = om;
-        this.ticketRepository = ticketRepository;
+        this.bitcoinRepository = bitcoinRepository;
         this.body = makeBody();
     }
 
@@ -63,26 +64,20 @@ public class UpbitWebSocketHandler implements WebSocketHandler {
     @Override
     public Mono<Void> handle(WebSocketSession session) {
         Flux.interval(Duration.ofMillis(600L))
-                .subscribeOn(Schedulers.single())
                 .filter(o -> session.isOpen())
                 .flatMap(tick ->
                         session.send(Mono.just(session.textMessage(body)))
                                 .onErrorStop())
                 .subscribe();
-        return session.receive()
-                .subscribeOn(Schedulers.single())
-                .map(WebSocketMessage::getPayloadAsText)
+        PublishingService.setFlux(StreamTickets(session));
+        return PublishingService.getFlux()
                 .handle((payload, sink) -> {
-                    try {
-                        Ticket ticket = om.readValue(payload, Ticket.class);
-                        sink.next(ticket.setId(LocalDateTime.now().toString()));
-                        log.debug("received : " + ticket);
-                    } catch (JsonProcessingException e) {
-                        sink.error(e);
+                    if (payload.getCode().equals(Bitcoin.COIN_TYPE)) {
+                        bitcoinRepository.insert(Bitcoin.fromTicket(payload))
+                                .subscribe(result -> sink.next(result),
+                                        error -> sink.error(error));
                     }
                 })
-                .cast(Ticket.class)
-                .flatMap(ticketRepository::insert)
                 .onErrorContinue((throwable, o) -> {
                     if (throwable instanceof DuplicateKeyException) {
                         log.info(ERROR_DUPLICATION);
@@ -96,5 +91,21 @@ public class UpbitWebSocketHandler implements WebSocketHandler {
                     throwable.printStackTrace();
                 })
                 .then();
+    }
+
+    private Flux<TicketDto> StreamTickets(WebSocketSession session) {
+        return session.receive()
+                .map(WebSocketMessage::getPayloadAsText)
+                .handle((payload, sink) -> {
+                    try {
+                        TicketDto ticketDto = om.readValue(payload, TicketDto.class);
+                        ticketDto.setId(LocalDateTime.now().toString());
+                        sink.next(ticketDto);
+                        log.debug("received : " + ticketDto);
+                    } catch (JsonProcessingException e) {
+                        sink.error(e);
+                    }
+                })
+                .cast(TicketDto.class);
     }
 }

@@ -1,8 +1,10 @@
 package com.coinsimulation.upbit;
 
 import com.coinsimulation.entity.Bitcoin;
+import com.coinsimulation.entity.Ethereum;
 import com.coinsimulation.entity.TicketDto;
 import com.coinsimulation.repository.BitcoinRepository;
+import com.coinsimulation.repository.EthereumRepository;
 import com.coinsimulation.service.PublishingService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,12 +29,14 @@ public class UpbitWebSocketHandler implements WebSocketHandler {
     private final String body;
     private final ObjectMapper om;
     private final BitcoinRepository bitcoinRepository;
+    private final EthereumRepository ethereumRepository;
     private final String ERROR_DUPLICATION = "ID is duplicated";
     private final String ERROR_429 = "429 : too many request";
 
-    public UpbitWebSocketHandler(ObjectMapper om, BitcoinRepository bitcoinRepository) {
+    public UpbitWebSocketHandler(ObjectMapper om, BitcoinRepository bitcoinRepository, EthereumRepository ethereumRepository) {
         this.om = om;
         this.bitcoinRepository = bitcoinRepository;
+        this.ethereumRepository = ethereumRepository;
         this.body = makeBody();
     }
 
@@ -71,13 +75,16 @@ public class UpbitWebSocketHandler implements WebSocketHandler {
                 .subscribe();
         PublishingService.setFlux(StreamTickets(session));
         return PublishingService.getFlux()
-                .handle((payload, sink) -> {
-                    if (payload.getCode().equals(Bitcoin.COIN_TYPE)) {
-                        bitcoinRepository.insert(Bitcoin.fromTicket(payload))
-                                .subscribe(result -> sink.next(result),
-                                        error -> sink.error(error));
-                    }
-                })
+                .flatMap(payload -> {
+                            if (payload.getCode().equals(Bitcoin.COIN_TYPE)) {
+                                return bitcoinRepository.insert(Bitcoin.fromTicket(payload));
+                            }
+                            if (payload.getCode().equals(Ethereum.COIN_TYPE)) {
+                                return ethereumRepository.insert(Ethereum.fromTicket(payload));
+                            }
+                            return Mono.empty(); // If none of the conditions are met, emit an empty Mono.
+                        }
+                )
                 .onErrorContinue((throwable, o) -> {
                     if (throwable instanceof DuplicateKeyException) {
                         log.info(ERROR_DUPLICATION);

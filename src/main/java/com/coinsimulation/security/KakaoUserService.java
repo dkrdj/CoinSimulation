@@ -18,7 +18,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class OAuth2UserCustomService extends DefaultReactiveOAuth2UserService {
+public class KakaoUserService extends DefaultReactiveOAuth2UserService {
     private final UserRepository userRepository;
 
     @Override
@@ -37,7 +37,7 @@ public class OAuth2UserCustomService extends DefaultReactiveOAuth2UserService {
                                 .providerId(kakaoUser.getProviderId())
                                 .nickname(kakaoUser.getNickname())
                                 .profile(kakaoUser.getProfile())
-                                .role("TEMP")
+                                .role("USER")
                                 .build())));
 
         return Mono.zip(userMono, attributes)

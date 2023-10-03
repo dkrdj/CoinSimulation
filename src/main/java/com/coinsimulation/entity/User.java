@@ -3,17 +3,22 @@ package com.coinsimulation.entity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
+
+import java.io.Serializable;
 
 @Getter
 @NoArgsConstructor
 @Table("users")
-public class User {
+public class User implements Serializable {
     @Id
     private Long id;
+    @Setter
     private String nickname;
     private String role;
+    @Setter
     private String profile;
     private Long providerId;
 
@@ -24,15 +29,6 @@ public class User {
         this.role = role;
         this.profile = profile;
         this.providerId = providerId;
-    }
-
-
-    public void updateNickName(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public void updateProfile(String profile) {
-        this.profile = profile;
     }
 
 }

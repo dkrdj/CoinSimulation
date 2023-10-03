@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 @Component
-public class AuthorizationRequestCustomRepository implements ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> {
+public class KakaoAuthorizationRequestRepository implements ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> {
     private final ReactiveClientRegistrationRepository clientRegistrationRepository;
     private final String KAKAO = "kakao";
     @Value("${kakao.token-uri}")

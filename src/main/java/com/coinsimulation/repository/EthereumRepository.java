@@ -1,6 +1,6 @@
 package com.coinsimulation.repository;
 
-import com.coinsimulation.entity.Ethereum;
+import com.coinsimulation.entity.coin.Ethereum;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 

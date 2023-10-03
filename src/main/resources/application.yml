@@ -1,4 +1,7 @@
 spring:
+  session:
+    redis:
+      flush-mode: immediate
   rsocket:
     server:
       port: 5100
@@ -9,6 +12,10 @@ spring:
   data:
     mongodb:
       database: coin
+    redis:
+      host: localhost
+      port: 6379
+      password: 'dkrdjcoin'
   security:
     oauth2:
       client:

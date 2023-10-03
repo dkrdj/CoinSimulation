@@ -1,9 +1,8 @@
 package com.coinsimulation;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+//@SpringBootTest
 //@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CoinSimulationApplicationTests {
 

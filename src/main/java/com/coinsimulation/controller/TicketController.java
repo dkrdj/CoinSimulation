@@ -1,8 +1,8 @@
 package com.coinsimulation.controller;
 
-import com.coinsimulation.dto.RequestDto;
 import com.coinsimulation.dto.TicketDto;
-import com.coinsimulation.service.PublishingService;
+import com.coinsimulation.dto.request.TicketRequest;
+import com.coinsimulation.service.TicketService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
@@ -14,11 +14,11 @@ import reactor.core.publisher.Mono;
 @Controller
 @RequiredArgsConstructor
 public class TicketController {
-    private final PublishingService publishingService;
+    private final TicketService ticketService;
 
     @MessageMapping("ticket")
-    public Flux<ResponseEntity<TicketDto>> subscribeTicket(RequestDto requestDtoMono) {
-        return this.publishingService.subscribeTicket(requestDtoMono)
+    public Flux<ResponseEntity<TicketDto>> subscribeTicket(TicketRequest ticketRequestMono) {
+        return this.ticketService.subscribeTicket(ticketRequestMono)
                 .map(ticket -> ResponseEntity.ok(ticket));
     }
 

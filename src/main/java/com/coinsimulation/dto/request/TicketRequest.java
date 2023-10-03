@@ -1,4 +1,4 @@
-package com.coinsimulation.dto;
+package com.coinsimulation.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RequestDto {
+public class TicketRequest {
     private String code;
 }

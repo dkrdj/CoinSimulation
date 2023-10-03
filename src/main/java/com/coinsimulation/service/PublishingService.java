@@ -1,17 +1,19 @@
 package com.coinsimulation.service;
 
 import com.coinsimulation.dto.RequestDto;
-import com.coinsimulation.entity.TicketDto;
+import com.coinsimulation.dto.TicketDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
+@Slf4j
 @Service
 public class PublishingService {
 
     private static Flux<TicketDto> flux;
 
     public PublishingService() {
-        flux = Flux.empty();
+        this.flux = Flux.empty();
     }
 
     public static Flux<TicketDto> getFlux() {
@@ -23,9 +25,12 @@ public class PublishingService {
     }
 
     public Flux<TicketDto> subscribeTicket(RequestDto requestDtoMono) {
-        return flux
+        return this.flux
                 .filter(ticketDto -> ticketDto.getCode().equals(requestDtoMono.getCode()))
-                .doOnNext(o -> System.out.println("subscribe"));
+                .switchIfEmpty(Flux.error(new IllegalArgumentException("no code in db")))
+                .doFirst(() -> log.info("subscribe"));
     }
 
 }
+
+

@@ -1,13 +1,14 @@
 package com.coinsimulation.upbit;
 
-import com.coinsimulation.entity.Bitcoin;
-import com.coinsimulation.entity.Ethereum;
-import com.coinsimulation.entity.TicketDto;
+import com.coinsimulation.dto.TicketDto;
+import com.coinsimulation.entity.coin.Bitcoin;
+import com.coinsimulation.entity.coin.Ethereum;
 import com.coinsimulation.repository.BitcoinRepository;
 import com.coinsimulation.repository.EthereumRepository;
 import com.coinsimulation.service.PublishingService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DuplicateKeyException;
@@ -27,14 +28,16 @@ import java.util.List;
 //@Component
 public class UpbitWebSocketHandler implements WebSocketHandler {
     private final String body;
-    private final ObjectMapper om;
+    private final ObjectMapper camelOM;
+    private final ObjectMapper snakeOM;
     private final BitcoinRepository bitcoinRepository;
     private final EthereumRepository ethereumRepository;
     private final String ERROR_DUPLICATION = "ID is duplicated";
     private final String ERROR_429 = "429 : too many request";
 
-    public UpbitWebSocketHandler(ObjectMapper om, BitcoinRepository bitcoinRepository, EthereumRepository ethereumRepository) {
-        this.om = om;
+    public UpbitWebSocketHandler(BitcoinRepository bitcoinRepository, EthereumRepository ethereumRepository) {
+        this.camelOM = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE);
+        this.snakeOM = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         this.bitcoinRepository = bitcoinRepository;
         this.ethereumRepository = ethereumRepository;
         this.body = makeBody();
@@ -59,7 +62,7 @@ public class UpbitWebSocketHandler implements WebSocketHandler {
         dataList.add(tickerData);
         dataList.add(formatData);
         try {
-            return om.writeValueAsString(dataList);
+            return camelOM.writeValueAsString(dataList);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
@@ -105,11 +108,13 @@ public class UpbitWebSocketHandler implements WebSocketHandler {
                 .map(WebSocketMessage::getPayloadAsText)
                 .handle((payload, sink) -> {
                     try {
-                        TicketDto ticketDto = om.readValue(payload, TicketDto.class);
+//                        log.info(payload);
+                        TicketDto ticketDto = snakeOM.readValue(payload, TicketDto.class);
                         ticketDto.setId(LocalDateTime.now().toString());
                         sink.next(ticketDto);
                         log.debug("received : " + ticketDto);
                     } catch (JsonProcessingException e) {
+                        log.error("json 변환 실패");
                         sink.error(e);
                     }
                 })

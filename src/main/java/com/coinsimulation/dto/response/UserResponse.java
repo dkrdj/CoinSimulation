@@ -1,4 +1,4 @@
-package com.coinsimulation.dto;
+package com.coinsimulation.dto.response;
 
 import com.coinsimulation.entity.Asset;
 import com.coinsimulation.entity.Execution;
@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserDto {
+public class UserResponse {
     private String nickname;
     private String profile;
     private List<Asset> currentAsset;

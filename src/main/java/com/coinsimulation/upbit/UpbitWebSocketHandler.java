@@ -5,7 +5,7 @@ import com.coinsimulation.entity.coin.Bitcoin;
 import com.coinsimulation.entity.coin.Ethereum;
 import com.coinsimulation.repository.BitcoinRepository;
 import com.coinsimulation.repository.EthereumRepository;
-import com.coinsimulation.service.PublishingService;
+import com.coinsimulation.service.TicketService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -76,8 +76,8 @@ public class UpbitWebSocketHandler implements WebSocketHandler {
                         session.send(Mono.just(session.textMessage(body)))
                                 .onErrorStop())
                 .subscribe();
-        PublishingService.setFlux(StreamTickets(session));
-        return PublishingService.getFlux()
+        TicketService.setFlux(StreamTickets(session));
+        return TicketService.getFlux()
                 .flatMap(payload -> {
                             if (payload.getCode().equals(Bitcoin.COIN_TYPE)) {
                                 return bitcoinRepository.insert(Bitcoin.fromTicket(payload));

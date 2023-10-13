@@ -1,4 +1,4 @@
-package com.coinsimulation.dto;
+package com.coinsimulation.dto.common;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;

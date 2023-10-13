@@ -1,6 +1,6 @@
 package com.coinsimulation.entity.coin;
 
-import com.coinsimulation.dto.TicketDto;
+import com.coinsimulation.dto.common.TicketDto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.springframework.beans.BeanUtils;

@@ -1,6 +1,6 @@
 package com.coinsimulation.upbit;
 
-import com.coinsimulation.dto.TicketDto;
+import com.coinsimulation.dto.common.TicketDto;
 import com.coinsimulation.entity.coin.Bitcoin;
 import com.coinsimulation.entity.coin.Ethereum;
 import com.coinsimulation.repository.BitcoinRepository;

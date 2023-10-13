@@ -1,6 +1,6 @@
 package com.coinsimulation.controller;
 
-import com.coinsimulation.dto.TicketDto;
+import com.coinsimulation.dto.common.TicketDto;
 import com.coinsimulation.dto.request.TicketRequest;
 import com.coinsimulation.service.TicketService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class TicketController {
     @MessageMapping("ticket")
     public Flux<ResponseEntity<TicketDto>> subscribeTicket(TicketRequest ticketRequestMono) {
         return this.ticketService.subscribeTicket(ticketRequestMono)
-                .map(ticket -> ResponseEntity.ok(ticket));
+                .map(ResponseEntity::ok);
     }
 
     @MessageExceptionHandler(IllegalArgumentException.class)

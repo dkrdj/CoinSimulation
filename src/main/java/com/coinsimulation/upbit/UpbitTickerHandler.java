@@ -112,7 +112,7 @@ public class UpbitTickerHandler implements WebSocketHandler {
                 .map(WebSocketMessage::getPayloadAsText)
                 .handle((payload, sink) -> {
                     try {
-//                        log.info(payload);.
+//                        log.info(payload);..
                         TicketDto ticketDto = snakeOM.readValue(payload, TicketDto.class);
                         ticketDto.setId(LocalDateTime.now().toString());
                         sink.next(ticketDto);

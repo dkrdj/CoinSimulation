@@ -117,7 +117,7 @@ public class UpbitTickerHandler implements WebSocketHandler {
                         ticketDto.setId(LocalDateTime.now().toString());
                         sink.next(ticketDto);
                         log.debug("received : " + ticketDto);
-                        log.info("ticket received");
+//                        log.info("ticket received");
                     } catch (JsonProcessingException e) {
                         log.error("json 변환 실패");
                         sink.error(e);

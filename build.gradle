@@ -22,6 +22,9 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.springframework.session:spring-session-core'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.session:spring-session-data-redis'
     implementation platform('software.amazon.awssdk:bom:2.20.149')
     implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
     implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -31,6 +34,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-rsocket'
     compileOnly 'org.projectlombok:lombok'
     implementation 'software.amazon.awssdk:s3'
+    implementation 'software.amazon.awssdk:netty-nio-client'
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'io.r2dbc:r2dbc-h2'
     runtimeOnly 'org.postgresql:postgresql'
@@ -41,6 +45,9 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     implementation 'io.netty:netty-resolver-dns-native-macos:4.1.68.Final:osx-aarch_64'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'commons-io:commons-io:2.11.0'
+    implementation 'jakarta.activation:jakarta.activation-api:2.1.2'
 }
 
 tasks.named('test') {

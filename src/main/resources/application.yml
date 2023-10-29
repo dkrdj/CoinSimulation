@@ -1,4 +1,12 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
+  session:
+    redis:
+      flush-mode: immediate
+  rsocket:
+    server:
+      port: 5100
   r2dbc:
     url: r2dbc:pool:postgresql://localhost:5432/postgres
     username: dkrdj
@@ -6,6 +14,10 @@ spring:
   data:
     mongodb:
       database: coin
+    redis:
+      host: localhost
+      port: 6379
+      password: 'dkrdjcoin'
   security:
     oauth2:
       client:
@@ -32,4 +44,4 @@ logging:
       springframework:
         r2dbc: DEBUG
 server:
-  port: 80
+  port: 5200

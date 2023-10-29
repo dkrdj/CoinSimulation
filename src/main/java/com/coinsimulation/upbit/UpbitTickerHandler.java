@@ -99,7 +99,7 @@ public class UpbitTickerHandler implements WebSocketHandler {
                     }
                     if (throwable instanceof UnrecognizedPropertyException) {
                         log.error(ERROR_429);
-                        //retryWhen 발동시키기 위한 예외발생
+                        //retryWhen 발동시키기 위한 예외발생.
                         throw new RuntimeException("429");
                     }
                     throwable.printStackTrace();

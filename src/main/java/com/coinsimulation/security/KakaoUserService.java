@@ -3,6 +3,7 @@ package com.coinsimulation.security;
 
 import com.coinsimulation.entity.User;
 import com.coinsimulation.repository.UserRepository;
+import com.coinsimulation.util.S3Utils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2UserService;
@@ -18,8 +19,9 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class OAuth2UserCustomService extends DefaultReactiveOAuth2UserService {
+public class KakaoUserService extends DefaultReactiveOAuth2UserService {
     private final UserRepository userRepository;
+    private final S3Utils s3Utils;
 
     @Override
     public Mono<OAuth2User> loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -37,8 +39,18 @@ public class OAuth2UserCustomService extends DefaultReactiveOAuth2UserService {
                                 .providerId(kakaoUser.getProviderId())
                                 .nickname(kakaoUser.getNickname())
                                 .profile(kakaoUser.getProfile())
-                                .role("TEMP")
-                                .build())));
+                                .role("USER")
+                                .isNew(true)
+                                .build()))
+                        .flatMap(user ->
+                                s3Utils.uploadObjectFromUrl(
+                                                user.getProfile(),
+                                                user.getId())
+                                        .map(fileResponse -> {
+                                            user.setProfile(fileResponse.path());
+                                            return user;
+                                        }))
+                        .flatMap(userRepository::save));
 
         return Mono.zip(userMono, attributes)
                 .map(o -> new UserDetailsCustom(o.getT1(), o.getT2()));

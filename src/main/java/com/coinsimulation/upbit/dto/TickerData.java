@@ -1,4 +1,4 @@
-package com.coinsimulation.upbit;
+package com.coinsimulation.upbit.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -15,4 +15,6 @@ public class TickerData {
     private List<String> codes;
     @JsonProperty("isOnlySnapshot")
     private boolean isOnlySnapshot;
+    @JsonProperty("isOnlyRealtime")
+    private boolean isOnlyRealtime;
 }

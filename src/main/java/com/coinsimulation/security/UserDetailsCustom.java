@@ -5,18 +5,31 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
-public class UserDetailsCustom implements OAuth2User {
+public class UserDetailsCustom implements OAuth2User, Serializable {
     private final User user;
     private Map<String, Object> attributes;
 
     public UserDetailsCustom(User user, Map<String, Object> attributes) {
         this.user = user;
         this.attributes = attributes;
+    }
+
+    public Long getUserId() {
+        return user.getId();
+    }
+
+    public Boolean getIsNew() {
+        return user.getIsNew();
+    }
+
+    public String getProfile() {
+        return user.getProfile();
     }
 
     @Override

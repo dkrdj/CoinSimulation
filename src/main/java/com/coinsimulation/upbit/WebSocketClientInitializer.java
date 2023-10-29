@@ -35,7 +35,7 @@ public class WebSocketClientInitializer {
 //                //429 에러면 throw 하기 때문에 여기서 retryWhen을 걸어줌.
 //                .doOnRequest(o -> log.info("가격 웹소켓 연결중"))
 //                .retryWhen(Retry.backoff(Long.MAX_VALUE, Duration.ofSeconds(2)))
-//                .subscribe();
+//                .subscribe();.
         client.execute(uri, new UpbitOrderBookHandler())
                 .subscribeOn(Schedulers.single())
                 .doOnRequest(o -> log.info("호가 웹소켓 연결중"))

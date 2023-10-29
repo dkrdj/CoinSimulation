@@ -6,6 +6,9 @@ import com.coinsimulation.entity.coin.Ethereum;
 import com.coinsimulation.repository.BitcoinRepository;
 import com.coinsimulation.repository.EthereumRepository;
 import com.coinsimulation.service.TicketService;
+import com.coinsimulation.upbit.dto.FormatData;
+import com.coinsimulation.upbit.dto.TickerData;
+import com.coinsimulation.upbit.dto.TicketData;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -25,17 +28,16 @@ import java.util.List;
 
 
 @Slf4j
-//@Component
-public class UpbitWebSocketHandler implements WebSocketHandler {
+public class UpbitTickerHandler implements WebSocketHandler {
+    private final BitcoinRepository bitcoinRepository;
+    private final EthereumRepository ethereumRepository;
     private final String body;
     private final ObjectMapper camelOM;
     private final ObjectMapper snakeOM;
-    private final BitcoinRepository bitcoinRepository;
-    private final EthereumRepository ethereumRepository;
     private final String ERROR_DUPLICATION = "ID is duplicated";
     private final String ERROR_429 = "429 : too many request";
 
-    public UpbitWebSocketHandler(BitcoinRepository bitcoinRepository, EthereumRepository ethereumRepository) {
+    public UpbitTickerHandler(BitcoinRepository bitcoinRepository, EthereumRepository ethereumRepository) {
         this.camelOM = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE);
         this.snakeOM = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         this.bitcoinRepository = bitcoinRepository;
@@ -54,6 +56,7 @@ public class UpbitWebSocketHandler implements WebSocketHandler {
         tickerData.setType("ticker");
         tickerData.setCodes(codes);
         tickerData.setOnlySnapshot(true);
+        tickerData.setOnlyRealtime(false);
 
         FormatData formatData = new FormatData("DEFAULT");
 
@@ -70,13 +73,14 @@ public class UpbitWebSocketHandler implements WebSocketHandler {
 
     @Override
     public Mono<Void> handle(WebSocketSession session) {
+        log.info("현재 코인 가격 요청 : " + body);
         Flux.interval(Duration.ofMillis(600L))
                 .filter(o -> session.isOpen())
                 .flatMap(tick ->
                         session.send(Mono.just(session.textMessage(body)))
                                 .onErrorStop())
                 .subscribe();
-        TicketService.setFlux(StreamTickets(session));
+        TicketService.setFlux(streamTickets(session));
         return TicketService.getFlux()
                 .flatMap(payload -> {
                             if (payload.getCode().equals(Bitcoin.COIN_TYPE)) {
@@ -103,7 +107,7 @@ public class UpbitWebSocketHandler implements WebSocketHandler {
                 .then();
     }
 
-    private Flux<TicketDto> StreamTickets(WebSocketSession session) {
+    private Flux<TicketDto> streamTickets(WebSocketSession session) {
         return session.receive()
                 .map(WebSocketMessage::getPayloadAsText)
                 .handle((payload, sink) -> {
@@ -113,6 +117,7 @@ public class UpbitWebSocketHandler implements WebSocketHandler {
                         ticketDto.setId(LocalDateTime.now().toString());
                         sink.next(ticketDto);
                         log.debug("received : " + ticketDto);
+                        log.info("ticket received");
                     } catch (JsonProcessingException e) {
                         log.error("json 변환 실패");
                         sink.error(e);

@@ -16,9 +16,10 @@ public class Order {
     @Id
     private Long id;
     private Long userId;
+    private String code;
     private String gubun;
-    private Double amount;
     private Double price;
-    private Double totalPrice;
+    private Double amount;
+    private Double preAmount;
     private LocalDateTime dateTime;
 }

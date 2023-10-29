@@ -22,6 +22,7 @@ public class S3Config {
     @Value("${cloud.aws.credentials.secret-key}")
     private String secretKey;
 
+
     @Bean
     public S3AsyncClient s3AsyncClient(AwsCredentialsProvider provider) {
         SdkAsyncHttpClient httpClient = NettyNioAsyncHttpClient.builder()

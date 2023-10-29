@@ -20,7 +20,6 @@ public class OrderBookService {
     }
 
     public static Mono<Void> setFlux(Flux<OrderBook> orderBookFlux) {
-        log.info("setFlux");
         flux = orderBookFlux.share();
         return Mono.empty();
     }

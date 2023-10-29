@@ -1,7 +1,7 @@
 package com.coinsimulation.controller;
 
-import com.coinsimulation.dto.common.TicketDto;
-import com.coinsimulation.service.TicketService;
+import com.coinsimulation.service.TradeService;
+import com.coinsimulation.upbit.dto.Trade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -13,12 +13,12 @@ import reactor.core.publisher.Mono;
 
 @Controller
 @RequiredArgsConstructor
-public class TicketController {
-    private final TicketService ticketService;
+public class TradeController {
+    private final TradeService tradeService;
 
-    @MessageMapping("ticket.{code}")
-    public Flux<ResponseEntity<TicketDto>> subscribeTicket(@DestinationVariable("code") String code) {
-        return this.ticketService.subscribeTicket(code)
+    @MessageMapping("trade.{code}")
+    public Flux<ResponseEntity<Trade>> subscribeTrade(@DestinationVariable("code") String code) {
+        return this.tradeService.subscribeOrderBook(code)
                 .map(ResponseEntity::ok);
     }
 

@@ -6,15 +6,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.core.async.AsyncRequestBody;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.model.*;
 
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -22,14 +27,23 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 @Component
 @Slf4j
-public class TempUtil {
+public class S3Utils {
     private final S3AsyncClient s3AsyncClient;
+    private final WebClient webClient;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public Mono<FileResponse> uploadObject(FilePart filePart, String path) {
-        String filename = filePart.filename();
-        String key = path + "/" + filename;
+    public Mono<FileResponse> uploadObjectFromUrl(String url, Long userId) {
+        return webClient.get()
+                .uri(url)
+                .exchangeToMono(response -> response.bodyToMono(byte[].class)
+                        .map(data -> new DefaultFilePart(data, response.headers().contentType().orElseThrow())))
+                .flatMap(defaultFilePart -> uploadObject(defaultFilePart, userId));
+    }
+
+    public Mono<FileResponse> uploadObject(FilePart filePart, Long userId) {
+        String filename = URLEncoder.encode(filePart.filename(), StandardCharsets.UTF_8);
+        String key = userId + "/" + filename;
 
         Map<String, String> metadata = Map.of("filename", filename);
         // get media type
@@ -42,17 +56,21 @@ public class TempUtil {
                         .bucket(bucket)
                         .build());
         UploadStatus uploadStatus = new UploadStatus(Objects.requireNonNull(filePart.headers().getContentType()).toString(), key);
-        return Mono.fromFuture(s3AsyncClientMultipartUpload)
+        Flux<DataBuffer> buffer = Mono.fromFuture(s3AsyncClientMultipartUpload)
                 .flatMapMany(response -> {
                     FileUtils.checkSdkResponse(response);
                     uploadStatus.setUploadId(response.uploadId());
                     log.info("Upload object with ID={}", response.uploadId());
                     return filePart.content();
-                })
-                .bufferUntil(dataBuffer -> {
+                });
+        return uploadFromDataBuffer(buffer, uploadStatus, filename);
+    }
+
+    private Mono<FileResponse> uploadFromDataBuffer(Flux<DataBuffer> buffer, UploadStatus uploadStatus, String filename) {
+        return buffer.bufferUntil(dataBuffer -> {
                     // Collect incoming values into multiple List buffers that will be emitted by the resulting Flux each time the given predicate returns true.
                     uploadStatus.addBuffered(dataBuffer.readableByteCount());
-                    if (uploadStatus.getBuffered() >= 5 * 1024) {
+                    if (uploadStatus.getBuffered() > 0) {
                         log.info("BufferUntil - returning true, bufferedBytes={}, partCounter={}, uploadId={}",
                                 uploadStatus.getBuffered(), uploadStatus.getPartCounter(), uploadStatus.getUploadId());
 

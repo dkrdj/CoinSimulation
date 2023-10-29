@@ -1,7 +1,6 @@
 package com.coinsimulation.service;
 
 import com.coinsimulation.dto.common.TicketDto;
-import com.coinsimulation.dto.request.TicketRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -21,7 +20,7 @@ public class TicketService {
         flux = ticketFlux.share();
     }
 
-    public Flux<TicketDto> subscribeTicket(TicketRequest ticketRequestMono) {
+    public Flux<TicketDto> subscribeTicket(String code) {
         return this.flux;
     }
 

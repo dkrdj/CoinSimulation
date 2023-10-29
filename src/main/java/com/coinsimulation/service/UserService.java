@@ -10,7 +10,9 @@ import com.coinsimulation.repository.AssetRepository;
 import com.coinsimulation.repository.ExecutionRepository;
 import com.coinsimulation.repository.OrderRepository;
 import com.coinsimulation.repository.UserRepository;
+import com.coinsimulation.util.S3Utils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -18,6 +20,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple5;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +29,7 @@ public class UserService {
     private final AssetRepository assetRepository;
     private final ExecutionRepository executionRepository;
     private final OrderRepository orderRepository;
-
+    private final S3Utils s3Utils;
 
     public Mono<UserResponse> getUserInfo(Long userId) {
         Mono<User> userMono = userRepository.findById(userId);
@@ -42,7 +45,7 @@ public class UserService {
         return tupleMono.map(tuple -> new UserResponse(tuple.getT1(), tuple.getT2(), tuple.getT3(), tuple.getT4(), tuple.getT5()));
     }
 
-    public Mono<Void> changeUserInfo(Long userId, UserInfoChangeRequest request) {
+    public Mono<User> changeUserInfo(Long userId, UserInfoChangeRequest request) {
         Mono<User> userMono = userRepository.findById(userId);
         return userMono.map(user -> {
                     if (StringUtils.hasText(request.getNickname())) {
@@ -54,12 +57,20 @@ public class UserService {
                     if (StringUtils.hasText(request.getRole())) {
                         user.setRole(request.getRole());
                     }
-                    if (request.getIsNew() != null) {
+                    if (Objects.nonNull(request.getIsNew())) {
                         user.setIsNew(request.getIsNew());
                     }
                     return user;
                 })
-                .flatMap(userRepository::save)
-                .then();
+                .flatMap(userRepository::save);
+    }
+
+    public Mono<User> changeUserProfile(FilePart filePart, Long userId) {
+        return s3Utils.uploadObject(filePart, userId)
+                .map(fileResponse -> fileResponse.path())
+                .flatMap(path -> userRepository.findById(userId).map(user -> {
+                    user.setProfile(path);
+                    return user;
+                }));
     }
 }

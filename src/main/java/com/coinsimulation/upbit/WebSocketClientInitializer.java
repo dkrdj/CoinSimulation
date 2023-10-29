@@ -30,7 +30,7 @@ public class WebSocketClientInitializer {
 
     @EventListener(ContextRefreshedEvent.class)
     public void upbitListener() {
-//        client.execute(uri, new UpbitTickerHandler(bitcoinRepository, ethereumRepository))
+//        client.execute(uri, new UpbitTickerHandler(bitcoinRepository, ethereumRepository)).
 //                .subscribeOn(Schedulers.single())
 //                //429 에러면 throw 하기 때문에 여기서 retryWhen을 걸어줌.
 //                .doOnRequest(o -> log.info("가격 웹소켓 연결중"))

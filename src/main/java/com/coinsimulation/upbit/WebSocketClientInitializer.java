@@ -30,10 +30,15 @@ public class WebSocketClientInitializer {
 
     @EventListener(ContextRefreshedEvent.class)
     public void upbitListener() {
-        client.execute(uri, new UpbitWebSocketHandler(bitcoinRepository, ethereumRepository))
+//        client.execute(uri, new UpbitTickerHandler(bitcoinRepository, ethereumRepository))
+//                .subscribeOn(Schedulers.single())
+//                //429 에러면 throw 하기 때문에 여기서 retryWhen을 걸어줌.
+//                .doOnRequest(o -> log.info("가격 웹소켓 연결중"))
+//                .retryWhen(Retry.backoff(Long.MAX_VALUE, Duration.ofSeconds(2)))
+//                .subscribe();
+        client.execute(uri, new UpbitOrderBookHandler())
                 .subscribeOn(Schedulers.single())
-                //429 에러면 throw 하기 때문에 여기서 retryWhen을 걸어줌.
-                .doOnRequest(o -> log.info("웹소켓 연결중"))
+                .doOnRequest(o -> log.info("호가 웹소켓 연결중"))
                 .retryWhen(Retry.backoff(Long.MAX_VALUE, Duration.ofSeconds(2)))
                 .subscribe();
     }

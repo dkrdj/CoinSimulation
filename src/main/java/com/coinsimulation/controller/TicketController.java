@@ -16,9 +16,9 @@ import reactor.core.publisher.Mono;
 public class TicketController {
     private final TicketService ticketService;
 
-    @MessageMapping("ticket.{code}")
-    public Flux<ResponseEntity<TicketDto>> subscribeTicket(@DestinationVariable("code") String code) {
-        return this.ticketService.subscribeTicket(code)
+    @MessageMapping("ticket")
+    public Flux<ResponseEntity<TicketDto>> subscribeTicket() {
+        return this.ticketService.subscribeTicket("code")
                 .map(ResponseEntity::ok);
     }
 

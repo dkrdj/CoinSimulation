@@ -1,9 +1,6 @@
 package com.coinsimulation.dto.common;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,5 +11,8 @@ public class OrderComponent {
     private Long userId;
     private String code;
     private Double price;
+    @Setter
     private Double amount;
+    @Setter
+    private Double orderSeq;
 }

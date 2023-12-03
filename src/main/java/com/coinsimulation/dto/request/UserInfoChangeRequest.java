@@ -9,7 +9,4 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserInfoChangeRequest {
     private String nickname;
-    private String role;
-    private String profile;
-    private Boolean isNew;
 }

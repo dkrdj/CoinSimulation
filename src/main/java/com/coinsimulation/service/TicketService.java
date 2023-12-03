@@ -9,15 +9,15 @@ import reactor.core.publisher.Flux;
 @Service
 public class TicketService {
 
-    private static Flux<TicketDto> flux = Flux.empty();
+    private Flux<TicketDto> flux = Flux.empty();
 
 
-    public static Flux<TicketDto> getFlux() {
-        return flux;
+    public Flux<TicketDto> getFlux() {
+        return this.flux;
     }
 
-    public static void setFlux(Flux<TicketDto> ticketFlux) {
-        flux = ticketFlux.share();
+    public void setFlux(Flux<TicketDto> ticketFlux) {
+        this.flux = ticketFlux.share();
     }
 
     public Flux<TicketDto> subscribeTicket(String code) {

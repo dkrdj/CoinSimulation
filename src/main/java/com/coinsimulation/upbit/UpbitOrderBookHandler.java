@@ -23,11 +23,13 @@ public class UpbitOrderBookHandler implements WebSocketHandler {
     private final String body;
     private final ObjectMapper camelOM;
     private final ObjectMapper snakeOM;
+    private final OrderBookService orderBookService;
 
-    public UpbitOrderBookHandler() {
+    public UpbitOrderBookHandler(OrderBookService orderBookService) {
         this.camelOM = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE);
         this.snakeOM = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         this.body = makeBody();
+        this.orderBookService = orderBookService;
     }
 
     private String makeBody() {
@@ -53,8 +55,8 @@ public class UpbitOrderBookHandler implements WebSocketHandler {
         log.info("호가 요청 : " + body);
 //        System.out.println(body);
         session.send(Mono.just(session.textMessage(body))).subscribe();
-        return OrderBookService.setFlux(StreamTickets(session))
-                .thenMany(OrderBookService.getFlux())
+        return orderBookService.setFlux(StreamTickets(session))
+                .thenMany(orderBookService.getFlux())
                 .onErrorContinue((throwable, o) -> {
                     throwable.printStackTrace();
                 })

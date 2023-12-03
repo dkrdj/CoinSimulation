@@ -22,17 +22,14 @@ public class User implements Serializable {
     @Setter
     private String profile;
     private Long providerId;
-    @Setter
-    private Boolean isNew;
 
     @Builder
-    public User(Long id, String nickname, String role, String profile, Long providerId, Boolean isNew) {
+    public User(Long id, String nickname, String role, String profile, Long providerId) {
         this.id = id;
         this.nickname = nickname;
         this.role = role;
         this.profile = profile;
         this.providerId = providerId;
-        this.isNew = isNew;
     }
 
 }

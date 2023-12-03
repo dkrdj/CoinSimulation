@@ -14,13 +14,14 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Table
 @Builder
-public class Execution {
+public class OrderHistory {
     @Id
     private Long id;
     private Long userId;
+    private String code;
     private String gubun;
-    private Double amount;
     private Double price;
-    private Double KRW;
+    private Double amount;
+    private Double preAmount;
     private LocalDateTime dateTime;
 }

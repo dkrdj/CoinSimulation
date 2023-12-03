@@ -1,4 +1,4 @@
-package com.coinsimulation.repository;
+package com.coinsimulation.repository.coin;
 
 import com.coinsimulation.entity.coin.Ethereum;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;

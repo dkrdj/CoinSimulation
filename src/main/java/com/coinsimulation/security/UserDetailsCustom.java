@@ -24,9 +24,6 @@ public class UserDetailsCustom implements OAuth2User, Serializable {
         return user.getId();
     }
 
-    public Boolean getIsNew() {
-        return user.getIsNew();
-    }
 
     public String getProfile() {
         return user.getProfile();

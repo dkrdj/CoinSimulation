@@ -7,6 +7,7 @@ import com.coinsimulation.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -14,6 +15,11 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
+
+    @GetMapping
+    public Flux<ResponseEntity<Order>> getOrder(@SessionAttribute("user") Long userId) {
+        return orderService.selectOrders(userId).map(ResponseEntity::ok);
+    }
 
     @PostMapping("buy")
     public Mono<ResponseEntity<Order>> buy(@SessionAttribute("user") Long userId, @RequestBody OrderRequest orderRequest) {
@@ -25,7 +31,7 @@ public class OrderController {
         return orderService.sellOrder(userId, orderRequest).map(ResponseEntity::ok);
     }
 
-    @PutMapping("cancel")
+    @DeleteMapping("cancel")
     public Mono<ResponseEntity<OrderCancelResponse>> cancel(@SessionAttribute("user") Long userId, Long orderId) {
         return orderService.cancelOrder(userId, orderId).map(ResponseEntity::ok);
 

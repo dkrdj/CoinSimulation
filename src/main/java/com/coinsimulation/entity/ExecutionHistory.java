@@ -1,7 +1,6 @@
 package com.coinsimulation.entity;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -13,8 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table
-@Builder
-public class Execution {
+public class ExecutionHistory {
     @Id
     private Long id;
     private Long userId;

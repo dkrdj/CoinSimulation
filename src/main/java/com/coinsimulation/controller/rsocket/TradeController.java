@@ -1,7 +1,7 @@
-package com.coinsimulation.controller;
+package com.coinsimulation.controller.rsocket;
 
-import com.coinsimulation.service.OrderBookService;
-import com.coinsimulation.upbit.dto.OrderBook;
+import com.coinsimulation.service.TradeService;
+import com.coinsimulation.upbit.dto.Trade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -13,12 +13,12 @@ import reactor.core.publisher.Mono;
 
 @Controller
 @RequiredArgsConstructor
-public class OrderBookController {
-    private final OrderBookService orderBookService;
+public class TradeController {
+    private final TradeService tradeService;
 
-    @MessageMapping("orderbook.{code}")
-    public Flux<ResponseEntity<OrderBook>> subscribeOrderBook(@DestinationVariable("code") String code) {
-        return this.orderBookService.subscribeOrderBook(code)
+    @MessageMapping("trade.{code}")
+    public Flux<ResponseEntity<Trade>> subscribeTrade(@DestinationVariable("code") String code) {
+        return this.tradeService.subscribeOrderBook(code)
                 .map(ResponseEntity::ok);
     }
 

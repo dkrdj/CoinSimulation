@@ -52,6 +52,7 @@ public class TradeService {
                     Double executionAmount = Math.min(orderComponent.getAmount(), -orderComponent.getOrderSeq());
                     //reactive하게 변경하여 수정해야함
                     executionService.executeTrade(executionAmount, trade, gubun, orderComponent).subscribe();
+                    //sse 전송 로직 추가 필요
                     orderComponent.setAmount(orderComponent.getAmount() - executionAmount);
                 }
                 if (Double.compare(orderComponent.getAmount(), 0d) == 0) {

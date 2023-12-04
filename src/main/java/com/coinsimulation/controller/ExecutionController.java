@@ -17,7 +17,7 @@ public class ExecutionController {
     private final ExecutionService executionService;
 
     @GetMapping
-    public Flux<ResponseEntity<Execution>> getExecution(@SessionAttribute("user") Long userId) {
-        return executionService.selectExecution(userId).map(ResponseEntity::ok);
+    public ResponseEntity<Flux<Execution>> getExecution(@SessionAttribute("user") Long userId) {
+        return ResponseEntity.ok(executionService.selectExecution(userId));
     }
 }

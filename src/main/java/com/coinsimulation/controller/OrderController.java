@@ -2,7 +2,7 @@ package com.coinsimulation.controller;
 
 import com.coinsimulation.dto.request.OrderRequest;
 import com.coinsimulation.dto.response.OrderCancelResponse;
-import com.coinsimulation.entity.Order;
+import com.coinsimulation.entity.Orders;
 import com.coinsimulation.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,17 +17,17 @@ public class OrderController {
     private final OrderService orderService;
 
     @GetMapping
-    public Flux<ResponseEntity<Order>> getOrder(@SessionAttribute("user") Long userId) {
+    public Flux<ResponseEntity<Orders>> getOrder(@SessionAttribute("user") Long userId) {
         return orderService.selectOrders(userId).map(ResponseEntity::ok);
     }
 
     @PostMapping("buy")
-    public Mono<ResponseEntity<Order>> buy(@SessionAttribute("user") Long userId, @RequestBody OrderRequest orderRequest) {
+    public Mono<ResponseEntity<Orders>> buy(@SessionAttribute("user") Long userId, @RequestBody OrderRequest orderRequest) {
         return orderService.buyOrder(userId, orderRequest).map(ResponseEntity::ok);
     }
 
     @PostMapping("sell")
-    public Mono<ResponseEntity<Order>> sell(@SessionAttribute("user") Long userId, @RequestBody OrderRequest orderRequest) {
+    public Mono<ResponseEntity<Orders>> sell(@SessionAttribute("user") Long userId, @RequestBody OrderRequest orderRequest) {
         return orderService.sellOrder(userId, orderRequest).map(ResponseEntity::ok);
     }
 

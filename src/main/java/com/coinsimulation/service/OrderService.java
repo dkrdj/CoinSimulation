@@ -4,16 +4,16 @@ import com.coinsimulation.dto.common.OrderComponent;
 import com.coinsimulation.dto.common.OrderMapKey;
 import com.coinsimulation.dto.request.OrderRequest;
 import com.coinsimulation.dto.response.OrderCancelResponse;
-import com.coinsimulation.entity.Order;
+import com.coinsimulation.entity.Orders;
 import com.coinsimulation.repository.OrderRepository;
 import com.coinsimulation.upbit.dto.OrderBookUnit;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.utils.StringUtils;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,13 +23,14 @@ import java.util.function.Consumer;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderBookService orderBookService;
     public Map<OrderMapKey, Map<Double, List<OrderComponent>>> orderList = new ConcurrentHashMap<>();
     public Map<OrderMapKey, PriorityBlockingQueue<Double>> orderQueue = new ConcurrentHashMap<>();
 
-    public Flux<Order> selectOrders(Long userId) {
+    public Flux<Orders> selectOrders(Long userId) {
         return orderRepository.findByUserId(userId);
     }
 
@@ -47,38 +48,40 @@ public class OrderService {
                 .computeIfAbsent(price, p -> new CopyOnWriteArrayList<>());
     }
 
-    public Mono<Order> buyOrder(Long userId, OrderRequest orderRequest) {
-        Order order = getBuilder(userId, orderRequest)
-                .gubun("buy").build();
-        return this.orderRepository.save(order)
+    public Mono<Orders> buyOrder(Long userId, OrderRequest orderRequest) {
+        Orders orders = getBuilder(userId, orderRequest)
+                .gubun("buy")
+                .build();
+        log.error(orders.toString());
+        return this.orderRepository.save(orders)
                 .doOnNext(putOrderInList())
                 .doOnNext(putPriceInQueue());
     }
 
-    public Mono<Order> sellOrder(Long userId, OrderRequest orderRequest) {
-        Order order = getBuilder(userId, orderRequest)
+    public Mono<Orders> sellOrder(Long userId, OrderRequest orderRequest) {
+        Orders orders = getBuilder(userId, orderRequest)
                 .gubun("sell").build();
-        return this.orderRepository.save(order)
+        return this.orderRepository.save(orders)
                 .doOnNext(putOrderInList())
                 .doOnNext(putPriceInQueue());
     }
 
     public Mono<OrderCancelResponse> cancelOrder(Long userId, Long orderId) {
         return this.orderRepository.deleteByIdAndUserId(orderId, userId)
-                .doOnNext(order ->
-                        getList(order.getCode(), order.getGubun(), order.getPrice())
-                                .remove(order)
-                ).map(order -> OrderCancelResponse.builder()
-                        .id(order.getId())
-                        .userId(order.getUserId())
-                        .code(order.getCode())
-                        .gubun(order.getGubun())
+                .doOnNext(orders ->
+                        getList(orders.getCode(), orders.getGubun(), orders.getPrice())
+                                .remove(orders)
+                ).map(orders -> OrderCancelResponse.builder()
+                        .id(orders.getId())
+                        .userId(orders.getUserId())
+                        .code(orders.getCode())
+                        .gubun(orders.getGubun())
                         .build());
     }
 
-    private Consumer<Order> putPriceInQueue() {
-        return (savedOrder) -> getQueue(savedOrder.getCode(), savedOrder.getGubun())
-                .offer(savedOrder.getPrice());
+    private Consumer<Orders> putPriceInQueue() {
+        return (savedOrders) -> getQueue(savedOrders.getCode(), savedOrders.getGubun())
+                .offer(savedOrders.getPrice());
     }
 
     private Double getBuySequence(String code, Double price) {
@@ -101,28 +104,27 @@ public class OrderService {
         return 0d;
     }
 
-    private Consumer<Order> putOrderInList() {
-        return (savedOrder) -> getList(savedOrder.getCode(), savedOrder.getGubun(), savedOrder.getPrice())
+    private Consumer<Orders> putOrderInList() {
+        return (savedOrders) -> getList(savedOrders.getCode(), savedOrders.getGubun(), savedOrders.getPrice())
                 .add(OrderComponent.builder()
-                        .id(savedOrder.getId())
-                        .userId(savedOrder.getUserId())
-                        .code(savedOrder.getCode())
-                        .price(savedOrder.getPrice())
-                        .amount(savedOrder.getAmount())
-                        .orderSeq(StringUtils.equals(savedOrder.getGubun(), "buy")
-                                ? getBuySequence(savedOrder.getCode(), savedOrder.getPrice())
-                                : getSellSequence(savedOrder.getCode(), savedOrder.getPrice())
+                        .id(savedOrders.getId())
+                        .userId(savedOrders.getUserId())
+                        .code(savedOrders.getCode())
+                        .price(savedOrders.getPrice())
+                        .amount(savedOrders.getAmount())
+                        .orderSeq(StringUtils.equals(savedOrders.getGubun(), "buy")
+                                ? getBuySequence(savedOrders.getCode(), savedOrders.getPrice())
+                                : getSellSequence(savedOrders.getCode(), savedOrders.getPrice())
                         )
                         .build());
     }
 
-    private Order.OrderBuilder getBuilder(Long userId, OrderRequest orderRequest) {
-        return Order.builder()
+    private Orders.OrdersBuilder getBuilder(Long userId, OrderRequest orderRequest) {
+        return Orders.builder()
                 .userId(userId)
                 .code(orderRequest.getCode())
                 .price(orderRequest.getPrice())
-                .amount(orderRequest.getAmount())
-                .preAmount(orderRequest.getPreAmount())
-                .dateTime(LocalDateTime.now());
+                .amount(orderRequest.getAmount());
+//                .dateTime(LocalDateTime.now());
     }
 }

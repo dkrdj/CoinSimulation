@@ -1,9 +1,7 @@
 package com.coinsimulation.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -14,14 +12,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Table
 @Builder
-public class Order {
+@ToString
+public class Orders {
     @Id
     private Long id;
+    @JsonProperty("user_id")
     private Long userId;
     private String code;
     private String gubun;
     private Double price;
     private Double amount;
-    private Double preAmount;
+    @JsonProperty("date_time")
     private LocalDateTime dateTime;
 }

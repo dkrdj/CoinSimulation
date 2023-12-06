@@ -7,5 +7,5 @@ import reactor.core.publisher.Flux;
 
 @Repository
 public interface OrderHistoryRepository extends ReactiveCrudRepository<OrderHistory, Long> {
-    Flux<OrderHistory> findByUserId(Long userId);
+    Flux<OrderHistory> findTop10ByUserIdOrderByDateTimeDesc(Long userId);
 }

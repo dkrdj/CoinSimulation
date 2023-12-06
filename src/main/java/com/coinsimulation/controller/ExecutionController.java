@@ -1,6 +1,6 @@
 package com.coinsimulation.controller;
 
-import com.coinsimulation.entity.Execution;
+import com.coinsimulation.dto.response.ExecutionResponse;
 import com.coinsimulation.service.ExecutionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ public class ExecutionController {
     private final ExecutionService executionService;
 
     @GetMapping
-    public ResponseEntity<Flux<Execution>> getExecution(@SessionAttribute("user") Long userId) {
+    public ResponseEntity<Flux<ExecutionResponse>> getExecution(@SessionAttribute("user") Long userId) {
         return ResponseEntity.ok(executionService.selectExecution(userId));
     }
 }

@@ -1,7 +1,6 @@
 package com.coinsimulation.security;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
@@ -13,7 +12,6 @@ import org.springframework.web.util.pattern.PathPattern;
 import org.springframework.web.util.pattern.PathPatternParser;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +34,7 @@ public class SessionFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(final ServerWebExchange serverWebExchange, final WebFilterChain webFilterChain) {
-        DataBuffer wrap = serverWebExchange.getResponse().bufferFactory().wrap("hi".getBytes(StandardCharsets.UTF_8));
+//        DataBuffer wrap = serverWebExchange.getResponse().bufferFactory().wrap("hi".getBytes(StandardCharsets.UTF_8));
         ServerHttpRequest request = serverWebExchange.getRequest();
         log.info("{} : {} {}", request.getHeaders().getFirst("X-Forwarded-For") == null
                         ? request.getRemoteAddress()
@@ -48,10 +46,8 @@ public class SessionFilter implements WebFilter {
                 .anyMatch(pathPattern -> pathPattern.matches(request.getPath().pathWithinApplication()))
         ) {
             return serverWebExchange.getSession()
-                    .doOnNext(session -> {
-                                Optional.ofNullable(session.getAttribute("user"))
-                                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not found session, Please Login again."));
-                            }
+                    .doOnNext(session -> Optional.ofNullable(session.getAttribute("user"))
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not found session, Please Login again."))
                     )
                     .then(webFilterChain.filter(serverWebExchange));
         } else {

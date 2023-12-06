@@ -12,6 +12,6 @@ public class OrderHistoryService {
     private final OrderHistoryRepository orderHistoryRepository;
 
     public Flux<OrderHistory> selectOrderHistory(Long userId) {
-        return orderHistoryRepository.findByUserId(userId);
+        return orderHistoryRepository.findTop10ByUserIdOrderByDateTimeDesc(userId);
     }
 }

@@ -1,10 +1,13 @@
 package com.coinsimulation.controller;
 
 import com.coinsimulation.dto.request.OrderRequest;
-import com.coinsimulation.dto.response.OrderCancelResponse;
-import com.coinsimulation.entity.Orders;
+import com.coinsimulation.dto.response.OrderResponse;
+import com.coinsimulation.entity.OrderHistory;
+import com.coinsimulation.service.OrderHistoryService;
 import com.coinsimulation.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -13,27 +16,35 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("order")
 @RequiredArgsConstructor
+@Slf4j
 public class OrderController {
+    private final OrderHistoryService orderHistoryService;
     private final OrderService orderService;
 
     @GetMapping
-    public Flux<ResponseEntity<Orders>> getOrder(@SessionAttribute("user") Long userId) {
-        return orderService.selectOrders(userId).map(ResponseEntity::ok);
+    public ResponseEntity<Flux<OrderResponse>> getOrder(@SessionAttribute("user") Long userId) {
+        return ResponseEntity.ok(orderService.selectOrders(userId));
     }
 
     @PostMapping("buy")
-    public Mono<ResponseEntity<Orders>> buy(@SessionAttribute("user") Long userId, @RequestBody OrderRequest orderRequest) {
+    public Mono<ResponseEntity<OrderResponse>> buy(@SessionAttribute("user") Long userId, @RequestBody OrderRequest orderRequest) {
         return orderService.buyOrder(userId, orderRequest).map(ResponseEntity::ok);
     }
 
     @PostMapping("sell")
-    public Mono<ResponseEntity<Orders>> sell(@SessionAttribute("user") Long userId, @RequestBody OrderRequest orderRequest) {
+    public Mono<ResponseEntity<OrderResponse>> sell(@SessionAttribute("user") Long userId, @RequestBody OrderRequest orderRequest) {
         return orderService.sellOrder(userId, orderRequest).map(ResponseEntity::ok);
     }
 
     @DeleteMapping("cancel")
-    public Mono<ResponseEntity<OrderCancelResponse>> cancel(@SessionAttribute("user") Long userId, Long orderId) {
-        return orderService.cancelOrder(userId, orderId).map(ResponseEntity::ok);
+    public Mono<ResponseEntity<Void>> cancel(@SessionAttribute("user") Long userId, Long orderId) {
+        return orderService.cancelOrder(userId, orderId)
+                .doOnError(noOrderException -> Mono.just(ResponseEntity.status(HttpStatus.NO_CONTENT)))
+                .then(Mono.just(ResponseEntity.ok().build()));
+    }
 
+    @GetMapping("history")
+    public ResponseEntity<Flux<OrderHistory>> getHistory(@SessionAttribute("user") Long userId) {
+        return ResponseEntity.ok(orderHistoryService.selectOrderHistory(userId));
     }
 }

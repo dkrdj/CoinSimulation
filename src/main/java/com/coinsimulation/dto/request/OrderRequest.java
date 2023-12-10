@@ -11,5 +11,4 @@ public class OrderRequest {
     private String code;
     private Double price;
     private Double amount;
-    private Double preAmount;
 }

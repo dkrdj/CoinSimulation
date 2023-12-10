@@ -1,8 +1,6 @@
 package com.coinsimulation.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -10,12 +8,15 @@ import org.springframework.data.relational.core.mapping.Table;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table
+@Builder
+@ToString
 public class Asset {
     @Id
     private Long id;
     private Long userId;
-    private String gubun;
-    private Double baseAsset;
-    private Double increasedAsset;
+    private String code;
+    @Setter
+    private Double averagePrice;
+    @Setter
     private Double amount;
 }

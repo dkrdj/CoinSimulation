@@ -8,6 +8,7 @@ import com.coinsimulation.util.S3Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
@@ -18,9 +19,10 @@ public class UserService {
     private final S3Utils s3Utils;
 
     public Mono<UserResponse> getUserInfo(Long userId) {
-        return userRepository.findById(userId).map(user -> new UserResponse(user.getNickname(), user.getProfile()));
+        return userRepository.findById(userId).map(user -> new UserResponse(user.getNickname(), user.getProfile(), user.getCash()));
     }
 
+    @Transactional
     public Mono<User> changeUserInfo(Long userId, UserInfoChangeRequest request) {
         Mono<User> userMono = userRepository.findById(userId);
         return userMono.map(user -> {
@@ -32,6 +34,7 @@ public class UserService {
                 .flatMap(userRepository::save);
     }
 
+    @Transactional
     public Mono<User> changeUserProfile(FilePart filePart, Long userId) {
         return s3Utils.uploadObject(filePart, userId)
                 .map(fileResponse -> fileResponse.path())

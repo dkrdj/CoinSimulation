@@ -23,6 +23,7 @@ public class Order {
     private Double price;
     @Setter
     private Double amount;
+    private Double prePrice;
     private Timestamp dateTime;
 
     public OrderResponse toResponse() {

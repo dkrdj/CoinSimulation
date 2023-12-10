@@ -14,6 +14,6 @@ public class ExecutionResponse {
     private String gubun;
     private Double amount;
     private Double price;
-    private Double KRW;
+    private Double totalPrice;
     private LocalDateTime dateTime;
 }

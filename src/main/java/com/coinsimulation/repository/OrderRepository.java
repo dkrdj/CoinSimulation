@@ -11,7 +11,13 @@ import reactor.core.publisher.Mono;
 public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
     Flux<Order> findByUserId(Long userId);
 
-    Mono<Order> deleteByIdAndUserId(Long id, Long userId);
+    @Query("select orders.* " +
+            "from orders " +
+            "and orders.id = :id " +
+            "and orders.user_id = :userId " +
+            "for update"
+    )
+    Mono<Order> findByIdAndUserIdForUpdate(Long id, Long userId);
 
     @Query("select orders.* " +
             "from orders " +
@@ -20,7 +26,15 @@ public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
             "and orders.price <= :price " +
             "for update"
     )
-    Flux<Order> findOrders(String gubun, String code, Double price);
+    Flux<Order> findOrdersForAsk(String gubun, String code, Double price);
 
+    @Query("select orders.* " +
+            "from orders " +
+            "where orders.gubun = :gubun " +
+            "and orders.code = :code " +
+            "and orders.price >= :price " +
+            "for update"
+    )
+    Flux<Order> findOrdersForBid(String gubun, String code, Double price);
 
 }

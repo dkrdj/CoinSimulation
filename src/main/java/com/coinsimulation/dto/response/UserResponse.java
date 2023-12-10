@@ -11,4 +11,5 @@ import lombok.*;
 public class UserResponse {
     private String nickname;
     private String profile;
+    private Double cash;
 }

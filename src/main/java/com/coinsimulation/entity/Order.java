@@ -6,7 +6,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
@@ -24,12 +24,11 @@ public class Order {
     @Setter
     private Double amount;
     private Double prePrice;
-    private Timestamp dateTime;
+    private LocalDateTime dateTime;
 
     public OrderResponse toResponse() {
         OrderResponse orderResponse = new OrderResponse();
         BeanUtils.copyProperties(this, orderResponse);
-        orderResponse.setDateTime(this.getDateTime());
         return orderResponse;
     }
 }

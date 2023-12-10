@@ -19,11 +19,12 @@ public class UserService {
     private final S3Utils s3Utils;
 
     public Mono<UserResponse> getUserInfo(Long userId) {
-        return userRepository.findById(userId).map(user -> new UserResponse(user.getNickname(), user.getProfile(), user.getCash()));
+        return userRepository.findById(userId)
+                .map(user -> user.toResponse());
     }
 
     @Transactional
-    public Mono<User> changeUserInfo(Long userId, UserInfoChangeRequest request) {
+    public Mono<UserResponse> changeUserInfo(Long userId, UserInfoChangeRequest request) {
         Mono<User> userMono = userRepository.findById(userId);
         return userMono.map(user -> {
                     if (StringUtils.hasText(request.getNickname())) {
@@ -31,17 +32,19 @@ public class UserService {
                     }
                     return user;
                 })
-                .flatMap(userRepository::save);
+                .flatMap(userRepository::save)
+                .map(user -> user.toResponse());
     }
 
     @Transactional
-    public Mono<User> changeUserProfile(FilePart filePart, Long userId) {
+    public Mono<UserResponse> changeUserProfile(FilePart filePart, Long userId) {
         return s3Utils.uploadObject(filePart, userId)
                 .map(fileResponse -> fileResponse.path())
                 .flatMap(path -> userRepository.findById(userId).map(user -> {
                     user.setProfile(path);
                     return user;
                 }))
-                .flatMap(user -> userRepository.save(user));
+                .flatMap(user -> userRepository.save(user))
+                .map(user -> user.toResponse());
     }
 }

@@ -23,7 +23,7 @@ public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
             "from orders " +
             "where orders.gubun = :gubun " +
             "and orders.code = :code " +
-            "and orders.price <= :price " +
+            "and orders.price >= :price " +
             "for update"
     )
     Flux<Order> findOrdersForAsk(String gubun, String code, Double price);
@@ -32,7 +32,7 @@ public interface OrderRepository extends ReactiveCrudRepository<Order, Long> {
             "from orders " +
             "where orders.gubun = :gubun " +
             "and orders.code = :code " +
-            "and orders.price >= :price " +
+            "and orders.price <= :price " +
             "for update"
     )
     Flux<Order> findOrdersForBid(String gubun, String code, Double price);

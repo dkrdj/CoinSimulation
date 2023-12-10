@@ -7,5 +7,5 @@ import reactor.core.publisher.Flux;
 
 @Repository
 public interface ExecutionRepository extends ReactiveCrudRepository<Execution, Long> {
-    Flux<Execution> findByUserId(Long userId);
+    Flux<Execution> findTop10ByUserId(Long userId);
 }

@@ -12,7 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("order")
+@RequestMapping("orders")
 @RequiredArgsConstructor
 @Slf4j
 public class OrderController {
@@ -39,8 +39,8 @@ public class OrderController {
         return orderService.sellOrder(userId, orderRequest).map(ResponseEntity::ok);
     }
 
-    @DeleteMapping("cancel")
-    public Mono<ResponseEntity<Void>> cancel(@SessionAttribute("user") Long userId, Long orderId) {
+    @DeleteMapping("{orderId}")
+    public Mono<ResponseEntity<Void>> cancel(@SessionAttribute("user") Long userId, @PathVariable Long orderId) {
         return orderService.cancelOrder(userId, orderId).map(ResponseEntity::ok);
     }
 }

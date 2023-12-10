@@ -34,7 +34,7 @@ public class ExecutionService {
     private final ObjectMapper om = new ObjectMapper().registerModule(new JavaTimeModule());
 
     public Flux<ExecutionResponse> selectExecution(Long userId) {
-        return executionRepository.findByUserId(userId).map(Execution::toResponse);
+        return executionRepository.findTop10ByUserId(userId).map(Execution::toResponse);
     }
 
     @Transactional
@@ -44,12 +44,11 @@ public class ExecutionService {
 //        if (trade.getAskBid().equals("ASK")) {
 //            log.info(String.valueOf(doubleNum.addAndGet(trade.getTradeVolume())));
 //        }
-        Flux<Execution> executionFlux = orderRepository.findOrdersForAsk(gubun, trade.getCode(), trade.getTradePrice())
-                .transform(orderFlux -> orderFlux
-                        .flatMap(order -> updateOrder(trade, order))
-                );
         if (gubun.equals("buy")) {
-            return executionFlux
+            return orderRepository.findOrdersForAsk(gubun, trade.getCode(), trade.getTradePrice())
+                    .transform(orderFlux -> orderFlux
+                            .flatMap(order -> updateOrder(trade, order))
+                    )
                     .flatMap(execution -> assetRepository.findByUserIdAndCodeForUpdate(execution.getUserId(), execution.getCode())
                                     .switchIfEmpty(Mono.just(Asset.builder()
                                             .amount(0d)
@@ -65,7 +64,10 @@ public class ExecutionService {
                     )
                     .then(Mono.just(trade));
         } else {
-            return executionFlux
+            return orderRepository.findOrdersForBid(gubun, trade.getCode(), trade.getTradePrice())
+                    .transform(orderFlux -> orderFlux
+                            .flatMap(order -> updateOrder(trade, order))
+                    )
                     .flatMap(
                             execution -> userRepository.findByIdForUpdate(execution.getUserId())
                                     .doOnNext(user -> user.setCash(user.getCash() + execution.getTotalPrice()))
@@ -93,10 +95,10 @@ public class ExecutionService {
                                 .price(order.getPrice())
                                 .userId(order.getUserId())
                                 .gubun(order.getGubun())
-                                .dateTime(LocalDateTime.now())
                                 .code(order.getCode())
                                 .amount(Math.min(restAmount, trade.getTradeVolume()))
                                 .totalPrice(order.getPrice() * Math.min(restAmount, trade.getTradeVolume()))
+                                .dateTime(LocalDateTime.now())
                                 .sequentialId(trade.getSequentialId())
                                 .build()
                 )

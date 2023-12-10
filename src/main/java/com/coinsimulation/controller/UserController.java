@@ -2,7 +2,6 @@ package com.coinsimulation.controller;
 
 import com.coinsimulation.dto.request.UserInfoChangeRequest;
 import com.coinsimulation.dto.response.UserResponse;
-import com.coinsimulation.entity.User;
 import com.coinsimulation.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,13 +24,13 @@ public class UserController {
     }
 
     @PatchMapping
-    public Mono<ResponseEntity<User>> changeUserInfo(@SessionAttribute("user") Long userId, @RequestBody UserInfoChangeRequest request) {
+    public Mono<ResponseEntity<UserResponse>> changeUserInfo(@SessionAttribute("user") Long userId, @RequestBody UserInfoChangeRequest request) {
         return userService.changeUserInfo(userId, request)
                 .map(ResponseEntity::ok);
     }
 
     @PatchMapping("profile")
-    public Mono<ResponseEntity<User>> changeUserProfile(@SessionAttribute("user") Long userId, @RequestPart("profile") Mono<FilePart> filePart) {
+    public Mono<ResponseEntity<UserResponse>> changeUserProfile(@SessionAttribute("user") Long userId, @RequestPart("profile") Mono<FilePart> filePart) {
         return filePart.flatMap(part -> userService.changeUserProfile(part, userId))
                 .map(ResponseEntity::ok);
     }

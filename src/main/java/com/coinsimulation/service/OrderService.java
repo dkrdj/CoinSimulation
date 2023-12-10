@@ -18,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Service
@@ -57,7 +56,7 @@ public class OrderService {
                                         .price(orderRequest.getPrice())
                                         .amount(orderRequest.getAmount())
                                         .gubun("buy")
-                                        .dateTime(Timestamp.valueOf(LocalDateTime.now()))
+                                        .dateTime(LocalDateTime.now())
                                         .build()
                         )
                         .doOnNext(order -> log.info("Order : " + order.toString()))
@@ -86,6 +85,7 @@ public class OrderService {
                                         .price(orderRequest.getPrice())
                                         .amount(orderRequest.getAmount())
                                         .gubun("sell")
+                                        .dateTime(LocalDateTime.now())
                                         .prePrice(asset.getAveragePrice())
                                         .build()
                         )

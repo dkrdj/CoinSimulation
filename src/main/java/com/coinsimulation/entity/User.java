@@ -1,6 +1,8 @@
 package com.coinsimulation.entity;
 
+import com.coinsimulation.dto.response.UserResponse;
 import lombok.*;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -23,4 +25,10 @@ public class User implements Serializable {
     private Long providerId;
     @Setter
     private Double cash;
+
+    public UserResponse toResponse() {
+        UserResponse userResponse = new UserResponse();
+        BeanUtils.copyProperties(this, userResponse);
+        return userResponse;
+    }
 }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.SessionAttribute;
 import reactor.core.publisher.Flux;
 
 @RestController
-@RequestMapping("execution")
+@RequestMapping("executions")
 @RequiredArgsConstructor
 public class ExecutionController {
     private final ExecutionService executionService;

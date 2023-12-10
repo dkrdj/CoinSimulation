@@ -1,19 +1,17 @@
 package com.coinsimulation.dto.response;
 
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data
 public class ExecutionResponse {
     private Long id;
     private String gubun;
     private Double amount;
     private Double price;
     private Double totalPrice;
+    @JsonFormat(pattern = "yyyy-MM-dd kk:mm:ss")
     private LocalDateTime dateTime;
 }

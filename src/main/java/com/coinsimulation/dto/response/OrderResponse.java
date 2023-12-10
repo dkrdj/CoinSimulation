@@ -1,20 +1,17 @@
 package com.coinsimulation.dto.response;
 
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@ToString
+@Data
 public class OrderResponse {
     private Long id;
     private String code;
     private String gubun;
     private Double price;
     private Double amount;
-    private Timestamp dateTime;
+    @JsonFormat(pattern = "yyyy-MM-dd kk:mm:ss")
+    private LocalDateTime dateTime;
 }

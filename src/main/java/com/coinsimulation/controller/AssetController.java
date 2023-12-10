@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("asset")
+@RequestMapping("assets")
 public class AssetController {
     private final AssetService assetService;
 
@@ -19,7 +19,7 @@ public class AssetController {
         return ResponseEntity.ok(assetService.getAsset(userId));
     }
 
-    @PostMapping("reset")
+    @PatchMapping("reset")
     public Mono<ResponseEntity<String>> resetAsset(@SessionAttribute("user") Long userId) {
         return assetService.resetCash(userId).map(ResponseEntity::ok);
     }

@@ -40,7 +40,7 @@ public class KakaoUserService extends DefaultReactiveOAuth2UserService {
                                 .nickname(kakaoUser.getNickname())
                                 .profile(kakaoUser.getProfile())
                                 .role("USER")
-                                .isNew(true)
+                                .cash(30000000d)
                                 .build()))
                         .flatMap(user ->
                                 s3Utils.uploadObjectFromUrl(

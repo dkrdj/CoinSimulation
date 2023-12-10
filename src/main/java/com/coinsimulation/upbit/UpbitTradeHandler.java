@@ -22,10 +22,12 @@ public class UpbitTradeHandler implements WebSocketHandler {
     private final String body;
     private final ObjectMapper camelOM;
     private final ObjectMapper snakeOM;
+    private final TradeService tradeService;
 
-    public UpbitTradeHandler() {
+    public UpbitTradeHandler(TradeService tradeService) {
         this.camelOM = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE);
         this.snakeOM = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
+        this.tradeService = tradeService;
         this.body = makeBody();
     }
 
@@ -33,8 +35,8 @@ public class UpbitTradeHandler implements WebSocketHandler {
     public Mono<Void> handle(WebSocketSession session) {
         log.info("체결 요청 : " + body);
         session.send(Mono.just(session.textMessage(body))).subscribe();
-        return TradeService.setFlux(StreamTickets(session))
-                .thenMany(TradeService.getFlux())
+        return tradeService.setFlux(StreamTickets(session))
+                .thenMany(tradeService.getFlux())
                 .onErrorContinue((throwable, o) -> {
                     throwable.printStackTrace();
                 })

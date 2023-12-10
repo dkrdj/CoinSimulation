@@ -5,20 +5,32 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Slf4j
 @Service
 public class TicketService {
+    private Map<String, Double> currentPriceMap = new ConcurrentHashMap<>();
 
-    private static Flux<TicketDto> flux = Flux.empty();
+    private Flux<TicketDto> flux = Flux.empty();
 
 
-    public static Flux<TicketDto> getFlux() {
-        return flux;
+    public Flux<TicketDto> getFlux() {
+        return this.flux;
     }
 
-    public static void setFlux(Flux<TicketDto> ticketFlux) {
-        flux = ticketFlux.share();
+    public void setFlux(Flux<TicketDto> ticketFlux) {
+        this.flux = ticketFlux.doOnNext(ticketDto ->
+                        currentPriceMap.put(ticketDto.getCode(), ticketDto.getAccTradePrice())
+                )
+                .share();
     }
+
+    public Double getCurrentPrice(String code) {
+        return currentPriceMap.get(code);
+    }
+
 
     public Flux<TicketDto> subscribeTicket(String code) {
         return this.flux;

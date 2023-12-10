@@ -9,20 +9,19 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Service
 public class OrderBookService {
-    //    private static Map<String, Flux<OrderBook>> fluxMap;
-    private static Flux<OrderBook> flux = Flux.empty();
-//    public OrderBookService() {
-//        fluxMap = new ConcurrentHashMap<>();
-//    }
+    private Flux<OrderBook> flux = Flux.empty();
 
-    public static Flux<OrderBook> getFlux() {
-        return flux;
+    public Flux<OrderBook> getFlux() {
+        return this.flux;
     }
 
-    public static Mono<Void> setFlux(Flux<OrderBook> orderBookFlux) {
-        flux = orderBookFlux.share();
+    public Mono<Void> setFlux(Flux<OrderBook> orderBookFlux) {
+        this.flux = orderBookFlux
+                //취소된 건 처리하는 로직 추가 필요
+                .share();
         return Mono.empty();
     }
+
 
     public Flux<OrderBook> subscribeOrderBook(String code) {
         return this.flux;

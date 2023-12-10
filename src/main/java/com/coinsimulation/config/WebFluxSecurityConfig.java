@@ -29,7 +29,6 @@ public class WebFluxSecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfig))
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/file/**").permitAll()
                         .pathMatchers("/test/**").permitAll()
                         .pathMatchers("/users/**").permitAll()
                         .anyExchange().authenticated()
@@ -47,7 +46,7 @@ public class WebFluxSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5500"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.addAllowedMethod("*");
         configuration.setAllowCredentials(true);

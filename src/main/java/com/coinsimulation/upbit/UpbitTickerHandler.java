@@ -3,8 +3,8 @@ package com.coinsimulation.upbit;
 import com.coinsimulation.dto.common.TicketDto;
 import com.coinsimulation.entity.coin.Bitcoin;
 import com.coinsimulation.entity.coin.Ethereum;
-import com.coinsimulation.repository.BitcoinRepository;
-import com.coinsimulation.repository.EthereumRepository;
+import com.coinsimulation.repository.coin.BitcoinRepository;
+import com.coinsimulation.repository.coin.EthereumRepository;
 import com.coinsimulation.service.TicketService;
 import com.coinsimulation.upbit.dto.FormatData;
 import com.coinsimulation.upbit.dto.TickerData;
@@ -31,18 +31,20 @@ import java.util.List;
 public class UpbitTickerHandler implements WebSocketHandler {
     private final BitcoinRepository bitcoinRepository;
     private final EthereumRepository ethereumRepository;
+    private final TicketService ticketService;
     private final String body;
     private final ObjectMapper camelOM;
     private final ObjectMapper snakeOM;
     private final String ERROR_DUPLICATION = "ID is duplicated";
     private final String ERROR_429 = "429 : too many request";
 
-    public UpbitTickerHandler(BitcoinRepository bitcoinRepository, EthereumRepository ethereumRepository) {
+    public UpbitTickerHandler(BitcoinRepository bitcoinRepository, EthereumRepository ethereumRepository, TicketService ticketService) {
         this.camelOM = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.LOWER_CAMEL_CASE);
         this.snakeOM = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
         this.bitcoinRepository = bitcoinRepository;
         this.ethereumRepository = ethereumRepository;
         this.body = makeBody();
+        this.ticketService = ticketService;
     }
 
     private String makeBody() {
@@ -80,8 +82,8 @@ public class UpbitTickerHandler implements WebSocketHandler {
                         session.send(Mono.just(session.textMessage(body)))
                                 .onErrorStop())
                 .subscribe();
-        TicketService.setFlux(streamTickets(session));
-        return TicketService.getFlux()
+        ticketService.setFlux(streamTickets(session));
+        return ticketService.getFlux()
                 .flatMap(payload -> {
                             if (payload.getCode().equals(Bitcoin.COIN_TYPE)) {
                                 return bitcoinRepository.insert(Bitcoin.fromTicket(payload));

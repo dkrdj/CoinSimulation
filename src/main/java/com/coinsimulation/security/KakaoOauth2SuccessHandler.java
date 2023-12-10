@@ -36,7 +36,6 @@ public class KakaoOauth2SuccessHandler implements ServerAuthenticationSuccessHan
                         .writeWith(Mono.just(LoginResponse.builder()
                                         .nickname(userDetailsCustom.getName())
                                         .profile(userDetailsCustom.getProfile())
-                                        .isNew(userDetailsCustom.getIsNew())
                                         .build())
                                 .handle((user, sink) -> {
                                     try {

@@ -1,17 +1,19 @@
 package com.coinsimulation.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.coinsimulation.dto.response.OrderResponse;
+import lombok.*;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table
+@Table("orders")
+@Builder
+@ToString
 public class Order {
     @Id
     private Long id;
@@ -19,7 +21,15 @@ public class Order {
     private String code;
     private String gubun;
     private Double price;
+    @Setter
     private Double amount;
-    private Double preAmount;
-    private LocalDateTime dateTime;
+    private Double prePrice;
+    private Timestamp dateTime;
+
+    public OrderResponse toResponse() {
+        OrderResponse orderResponse = new OrderResponse();
+        BeanUtils.copyProperties(this, orderResponse);
+        orderResponse.setDateTime(this.getDateTime());
+        return orderResponse;
+    }
 }

@@ -10,6 +10,7 @@ import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -46,5 +47,9 @@ public class UserService {
                 }))
                 .flatMap(user -> userRepository.save(user))
                 .map(user -> user.toResponse());
+    }
+
+    public Flux<UserResponse> getTop10Users() {
+        return userRepository.findTop10ByOrderByCashDesc().map(user -> user.toResponse());
     }
 }

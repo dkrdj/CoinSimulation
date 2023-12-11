@@ -1,5 +1,8 @@
 package com.coinsimulation.controller;
 
+import com.coinsimulation.dto.response.UserResponse;
+import com.coinsimulation.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -14,8 +17,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("test")
 public class TestController {
+    private final UserService userService;
+
     @GetMapping("1")
     public ResponseEntity<Flux<String>> test() {
         return ResponseEntity.ok(Flux.interval(Duration.ofMillis(300L))
@@ -33,6 +39,12 @@ public class TestController {
         DataBuffer wrap = webFilterExchange.getExchange().getResponse().bufferFactory().wrap("hi".getBytes(StandardCharsets.UTF_8));
         Mono<DataBuffer> mono = Mono.just(wrap);
         return webFilterExchange.getExchange().getResponse().writeWith(mono);
+    }
+
+
+    @GetMapping("rank")
+    public ResponseEntity<Flux<UserResponse>> getRank() {
+        return ResponseEntity.ok(userService.getTop10Users());
     }
     //
 }

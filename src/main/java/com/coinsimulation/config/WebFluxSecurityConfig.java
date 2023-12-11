@@ -20,19 +20,15 @@ import java.util.Arrays;
 @Slf4j
 public class WebFluxSecurityConfig {
 
+
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http,
                                                             ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> repository,
                                                             CorsConfigurationSource corsConfig,
                                                             ServerAuthenticationSuccessHandler oauth2SuccessHandler) {
         return http
-                .cors(cors -> cors.configurationSource(corsConfig))
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .authorizeExchange(exchanges -> exchanges
-                        .pathMatchers("/test/**").permitAll()
-                        .pathMatchers("/users/**").permitAll()
-                        .anyExchange().authenticated()
-                )
+                .cors(cors -> cors.configurationSource(corsConfig))
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .oauth2Login(oAuth2LoginSpec ->
                         oAuth2LoginSpec.authenticationSuccessHandler(oauth2SuccessHandler)
@@ -46,7 +42,7 @@ public class WebFluxSecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.addAllowedMethod("*");
         configuration.setAllowCredentials(true);

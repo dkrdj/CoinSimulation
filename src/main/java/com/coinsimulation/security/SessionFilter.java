@@ -30,6 +30,7 @@ public class SessionFilter implements WebFilter {
         excludePatterns = new ArrayList<>();
         excludePatterns.add(new PathPatternParser().parse("/login/**"));
         excludePatterns.add(new PathPatternParser().parse("/test/**"));
+        excludePatterns.add(new PathPatternParser().parse("/rank"));
     }
 
     @Override

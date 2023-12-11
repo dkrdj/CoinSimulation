@@ -34,4 +34,6 @@ public class UserController {
         return filePart.flatMap(part -> userService.changeUserProfile(part, userId))
                 .map(ResponseEntity::ok);
     }
+
+
 }

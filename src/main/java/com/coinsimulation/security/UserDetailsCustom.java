@@ -21,6 +21,10 @@ public class UserDetailsCustom implements UserDetails, OAuth2User, Serializable 
         this.attributes = attributes;
     }
 
+    public UserDetailsCustom(User user) {
+        this.user = user;
+    }
+
     public Long getUserId() {
         return user.getId();
     }

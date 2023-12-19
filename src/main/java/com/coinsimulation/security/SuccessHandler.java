@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class KakaoOauth2SuccessHandler implements ServerAuthenticationSuccessHandler {
+public class SuccessHandler implements ServerAuthenticationSuccessHandler {
     private final ObjectMapper om;
     private final DataBufferFactory factory;
 

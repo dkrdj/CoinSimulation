@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -18,8 +17,6 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 
 @Component
 @RequiredArgsConstructor
@@ -51,21 +48,22 @@ public class ServerAuthenticationCustomConverter implements ServerAuthentication
                 .single()
                 .cast(LoginRequest.class)
                 .flatMap(loginRequest -> userRepository.findByProviderId(loginRequest.getProviderId())
-                        .switchIfEmpty(userRepository.save(User.builder()
-                                .providerId(loginRequest.getProviderId())
-                                .profile(loginRequest.getProfile())
-                                .nickname(loginRequest.getNickname())
-                                .role("USER")
-                                .cash(30000000d)
-                                .build()))
-                        .flatMap(user ->
-                                s3Utils.uploadObjectFromUrl(
-                                                user.getProfile(),
-                                                user.getId())
-                                        .map(fileResponse -> {
-                                            user.setProfile(fileResponse.path());
-                                            return user;
-                                        }))
+                        .switchIfEmpty(
+                                userRepository.save(User.builder()
+                                                .providerId(loginRequest.getProviderId())
+                                                .profile(loginRequest.getProfile())
+                                                .nickname(loginRequest.getNickname())
+                                                .role("USER")
+                                                .cash(30000000d)
+                                                .build())
+                                        .flatMap(user -> s3Utils
+                                                .uploadObjectFromUrl(user.getProfile(), user.getId())
+                                                .map(fileResponse -> {
+                                                    user.setProfile(fileResponse.path());
+                                                    return user;
+                                                })
+                                        )
+                        )
                         .flatMap(userRepository::save)
                         .map(UserDetailsCustom::new)
                         .map(userDetailsCustom ->
@@ -73,7 +71,8 @@ public class ServerAuthenticationCustomConverter implements ServerAuthentication
                                         .authenticated(
                                                 userDetailsCustom,
                                                 null,
-                                                new ArrayList<>(Collections.singleton(new SimpleGrantedAuthority("USER"))))
+                                                userDetailsCustom.getAuthorities()
+                                        )
                         )
                 );
     }
